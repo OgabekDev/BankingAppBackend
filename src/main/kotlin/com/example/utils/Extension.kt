@@ -17,19 +17,19 @@ fun String.isValidCardNumber(): Boolean {
 
 fun String.isValidCardExpireDate(): Boolean {
     val expirationDateRegex = """^(0[1-9]|1[0-2])/\d{2}$""".toRegex()
-
-    if (!expirationDateRegex.matches(this))
-        return false
-
-    val currentYear = LocalDate.now().year % 100 // Get the last two digits of the current year
-    val currentMonth = LocalDate.now().monthValue
-
-    val dateFormatter = DateTimeFormatter.ofPattern("MM/yy")
-    val expirationDateParsed = LocalDate.parse("01/$this", dateFormatter)
-    val expirationYear = expirationDateParsed.year % 100
-    val expirationMonth = expirationDateParsed.monthValue
-
-    return expirationYear >= currentYear && (expirationYear > currentYear || expirationMonth > currentMonth)
+    return expirationDateRegex.matches(this)
+//    if (!expirationDateRegex.matches(this))
+//        return false
+//
+//    val currentYear = LocalDate.now().year % 100 // Get the last two digits of the current year
+//    val currentMonth = LocalDate.now().monthValue
+//
+//    val dateFormatter = DateTimeFormatter.ofPattern("MM/yy")
+//    val expirationDateParsed = LocalDate.parse("01/$this", dateFormatter)
+//    val expirationYear = expirationDateParsed.year % 100
+//    val expirationMonth = expirationDateParsed.monthValue
+//
+//    return expirationYear >= currentYear && (expirationYear > currentYear || expirationMonth > currentMonth)
 }
 
 fun cardType(cardNumber: String): CardTypes {

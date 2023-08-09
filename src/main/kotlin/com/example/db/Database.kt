@@ -9,15 +9,17 @@ class Database: UserDB, CardDB, HistoryDB {
     private val cards: HashMap<String, Card> = HashMap()
     private val histories: HashMap<Long, History> = HashMap()
 
-    override fun createUser(firstName: String, lastName: String, phoneNumber: String): ReturnType<User>  {
+    override fun createUser(id: Long, firstName: String, lastName: String, phoneNumber: String, password: String): ReturnType<User>  {
 
         if (!phoneNumber.isValidPhoneNumber())
             return ReturnType(Status.ERROR, errorMessage = "Not valid phone number")
 
         val user = User(
+            id = id,
             firstName = firstName,
             lastName = lastName,
-            phoneNumber = phoneNumber
+            phoneNumber = phoneNumber,
+            password = password
         )
 
         users[user.id] = user
@@ -39,7 +41,8 @@ class Database: UserDB, CardDB, HistoryDB {
         userID: Long,
         firstName: String,
         lastName: String,
-        phoneNumber: String
+        phoneNumber: String,
+        password: String
     ): ReturnType<Boolean> {
 
         if (phoneNumber.isValidPhoneNumber())
@@ -48,6 +51,7 @@ class Database: UserDB, CardDB, HistoryDB {
         users[userID]!!.firstName = firstName
         users[userID]!!.lastName = lastName
         users[userID]!!.phoneNumber = phoneNumber
+        users[userID]!!.password = password
 
         return ReturnType(Status.SUCCESS, body = true)
 
@@ -66,6 +70,15 @@ class Database: UserDB, CardDB, HistoryDB {
 
         return ReturnType(Status.SUCCESS, body = true)
 
+    }
+
+    override fun changePassword(userID: Long, password: String): ReturnType<Boolean> {
+        if (!users.containsKey(userID))
+            return ReturnType(Status.ERROR, errorMessage = "User Not found")
+
+        users[userID]!!.password = password
+
+        return ReturnType(Status.SUCCESS, body = true)
     }
 
     override fun addCard(
@@ -212,6 +225,45 @@ class Database: UserDB, CardDB, HistoryDB {
         }
 
         return ReturnType(Status.SUCCESS, body = result)
+    }
+
+    fun login(
+        userID: Long,
+        password: String
+    ): ReturnType<User> {
+        if (!users.containsKey(userID))
+            return ReturnType(Status.ERROR, errorMessage = "User Not found")
+
+        if (users[userID]!!.password != password)
+            return ReturnType(Status.ERROR, errorMessage = "Incorrect password")
+
+        return ReturnType(Status.SUCCESS, body = users[userID])
+    }
+
+    fun getUserBalance(
+        userID: Long
+    ): ReturnType<Int> {
+
+        if (!users.containsKey(userID))
+            return ReturnType(Status.ERROR, errorMessage = "User Not found")
+
+        var balance = 0
+
+        for (i in users[userID]!!.cards) {
+            balance += i.balance
+        }
+
+        return ReturnType(Status.SUCCESS, body = balance)
+    }
+
+    fun getCardBalance(
+        cardId: String
+    ): ReturnType<Int> {
+
+        if (!cards.containsKey(cardId))
+            return ReturnType(Status.ERROR, errorMessage = "Card Not found")
+
+        return ReturnType(Status.SUCCESS, body = cards[cardId]!!.balance)
     }
 
 }
